@@ -3,41 +3,47 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Livestream Chat</title>
+  <title>Randomlyours</title>
   <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@500;700&display=swap" rel="stylesheet">
+  <style>
+    body {
+      font-family: 'Orbitron', sans-serif;
+    }
+  </style>
 </head>
-<body class="bg-gray-900 text-white min-h-screen flex flex-col">
+<body class="bg-black text-white min-h-screen flex flex-col">
 
   <!-- Username Modal -->
-  <div id="usernameModal" class="fixed inset-0 bg-black bg-opacity-60 flex items-center justify-center z-50">
-    <div class="bg-gray-800 p-6 rounded-xl w-80 text-center space-y-4">
-      <h2 class="text-lg font-semibold">Enter your name to join:</h2>
-      <input id="usernameInput" type="text" placeholder="Your name" class="w-full p-2 rounded bg-gray-700 text-white focus:outline-none"/>
-      <button id="submitUsernameBtn" class="bg-blue-600 hover:bg-blue-700 px-4 py-2 rounded text-white w-full">Start Chat</button>
+  <div id="usernameModal" class="fixed inset-0 bg-black bg-opacity-80 flex items-center justify-center z-50">
+    <div class="bg-gray-900 p-6 rounded-xl w-80 text-center space-y-4 shadow-lg border border-gray-700">
+      <h2 class="text-xl font-bold">Enter Your Alias</h2>
+      <input id="usernameInput" type="text" placeholder="e.g. Mike" class="w-full p-2 rounded bg-gray-800 text-white focus:outline-none"/>
+      <button id="submitUsernameBtn" class="bg-green-600 hover:bg-green-700 px-4 py-2 rounded w-full">Join Chat</button>
     </div>
   </div>
 
-  <!-- Chat Layout -->
+  <!-- Chat UI -->
   <main class="flex-grow flex items-center justify-center px-2 py-4">
-    <div class="w-full max-w-2xl h-full flex flex-col bg-gray-800 rounded-xl p-4 glass">
+    <div class="w-full max-w-3xl h-full flex flex-col bg-gray-900 rounded-2xl p-4 shadow-lg border border-gray-800">
 
-      <h1 class="text-2xl font-bold text-center mb-2">💬 Livestream Chat</h1>
-      <div id="onlineCount" class="text-center text-gray-300 text-sm mb-2">Users Online: 0</div>
+      <h1 class="text-3xl font-bold text-center mb-2 tracking-wider">Randomlyours Chat</h1>
+      <div id="onlineCount" class="text-center text-gray-400 text-sm mb-3">Users Online: 0</div>
 
-      <div id="chatBox" class="flex-grow overflow-y-auto space-y-2 p-2">
-        <!-- Messages will appear here -->
+      <div id="chatBox" class="flex-grow overflow-y-auto space-y-4 p-2 pr-1">
+        <!-- Messages -->
       </div>
 
       <div class="mt-4 flex gap-2">
-        <input id="msgInput" type="text" placeholder="Type a message..." class="flex-grow p-2 rounded-lg bg-gray-700 text-white focus:outline-none" disabled />
-        <button id="sendBtn" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg" disabled>Send</button>
+        <input id="msgInput" type="text" placeholder="Type a message..." class="flex-grow p-3 rounded-xl bg-gray-800 text-white focus:outline-none font-medium" disabled />
+        <button id="sendBtn" class="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-xl font-bold" disabled>Send</button>
       </div>
 
       <div id="chatStatus" class="mt-2 text-center text-sm text-red-500 font-semibold"></div>
     </div>
   </main>
 
-  <!-- WebSocket & Chat Script -->
+  <!-- Script -->
   <script>
     const socket = new WebSocket('wss://livechat-spin.onrender.com');
 
@@ -54,15 +60,15 @@
     let myAvatar = null;
 
     submitUsernameBtn.onclick = () => {
-      const username = usernameInput.value.trim();
-      if (username) {
-        myUsername = username;
-        socket.send(JSON.stringify({ type: 'init', username }));
+      const name = usernameInput.value.trim();
+      if (name) {
+        myUsername = name;
+        socket.send(JSON.stringify({ type: 'init', username: name }));
         usernameModal.classList.add('hidden');
         msgInput.disabled = false;
         sendBtn.disabled = false;
       } else {
-        alert('Please enter a valid name.');
+        alert('Enter a valid name.');
       }
     };
 
@@ -71,7 +77,7 @@
 
       if (data.type === 'init') {
         myAvatar = data.avatar;
-        appendSystemMessage(`You are now known as: ${myUsername}`);
+        return; // Don't show this in chat
       }
 
       if (data.type === 'chat') {
@@ -97,14 +103,14 @@
       wrapper.className = `flex ${isMe ? 'justify-end' : 'justify-start'}`;
 
       const bubble = document.createElement('div');
-      bubble.className = `max-w-[75%] p-3 rounded-2xl text-sm shadow-md flex items-start space-x-2 ${isMe ? 'bg-green-600 text-white rounded-br-none' : 'bg-gray-700 text-white rounded-bl-none'}`;
+      bubble.className = `max-w-[75%] p-4 rounded-2xl text-sm shadow-md flex items-start gap-3 ${isMe ? 'bg-green-700 text-white rounded-br-none' : 'bg-gray-800 text-white rounded-bl-none'}`;
 
       bubble.innerHTML = `
-        <img src="${data.avatar}" class="w-8 h-8 rounded-full" />
+        <img src="${data.avatar}" class="w-10 h-10 rounded-full border border-gray-600 shadow"/>
         <div>
-          <div class="font-semibold">${data.from}</div>
-          <div>${data.message}</div>
-          <div class="text-xs text-gray-300 mt-1">${new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</div>
+          <div class="font-bold text-base">${data.from}</div>
+          <div class="font-medium text-sm">${data.message}</div>
+          <div class="text-xs text-gray-400 mt-1">${new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</div>
         </div>
       `;
 
@@ -114,10 +120,10 @@
     }
 
     function appendSystemMessage(text) {
-      const sys = document.createElement('div');
-      sys.className = 'text-center text-sm text-gray-400 italic';
-      sys.textContent = text;
-      chatBox.appendChild(sys);
+      const el = document.createElement('div');
+      el.className = 'text-center text-sm text-gray-500 italic';
+      el.textContent = text;
+      chatBox.appendChild(el);
       chatBox.scrollTop = chatBox.scrollHeight;
     }
 
