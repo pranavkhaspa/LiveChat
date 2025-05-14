@@ -1,5 +1,5 @@
 const WebSocket = require('ws');
-const port = process.env.PORT || 8080; // Use Render's port or 8080 for local development
+const port = process.env.PORT || 8080;
 
 const wss = new WebSocket.Server({ port });
 
@@ -19,19 +19,16 @@ const avatars = [
 ];
 
 let chatEnabled = true;
-let onlineUsers = new Set(); // Track online users
+let onlineUsers = new Set();
 
-// Generate random username from predefined list
 function getRandomUsername() {
   return usernames[Math.floor(Math.random() * usernames.length)];
 }
 
-// Assign a random avatar from the list
 function getRandomAvatar() {
   return avatars[Math.floor(Math.random() * avatars.length)];
 }
 
-// Handle new WebSocket connections
 wss.on('connection', (ws) => {
   const username = getRandomUsername();
   const avatar = getRandomAvatar();
@@ -40,20 +37,27 @@ wss.on('connection', (ws) => {
 
   onlineUsers.add(ws);
 
-  // Send the initial message to the user
   ws.send(JSON.stringify({ type: 'init', username, avatar }));
 
-  // Send the number of online users to all clients
-  const onlineCountMessage = {
-    type: 'online-count',
-    count: onlineUsers.size
-  };
-  broadcast(onlineCountMessage);
+  broadcast({ type: 'online-count', count: onlineUsers.size });
 
-  // Handle incoming chat messages
+  // ✅ Combined message handler
   ws.on('message', (rawMessage) => {
-    const messageText = rawMessage.toString();
+    const messageText = rawMessage.toString().trim();
 
+    // Admin command handler
+    if (messageText === '/disable-chat' && ws.username === 'Admin') {
+      chatEnabled = false;
+      broadcast({ type: 'chat-status', message: 'Chat has been disabled by Admin.' });
+      return;
+    }
+    if (messageText === '/enable-chat' && ws.username === 'Admin') {
+      chatEnabled = true;
+      broadcast({ type: 'chat-status', message: 'Chat has been enabled by Admin.' });
+      return;
+    }
+
+    // Regular chat message
     const msg = {
       type: 'chat',
       from: ws.username,
@@ -69,34 +73,15 @@ wss.on('connection', (ws) => {
     }
   });
 
-  // Handle admin messages for enabling/disabling the chat
-  ws.on('message', (rawMessage) => {
-    const messageText = rawMessage.toString();
-
-    if (messageText === '/disable-chat' && ws.username === 'Admin') {
-      chatEnabled = false;
-      broadcast({ type: 'chat-status', message: 'Chat has been disabled by Admin.' });
-    } else if (messageText === '/enable-chat' && ws.username === 'Admin') {
-      chatEnabled = true;
-      broadcast({ type: 'chat-status', message: 'Chat has been enabled by Admin.' });
-    }
-  });
-
-  // Close the WebSocket connection
   ws.on('close', () => {
     console.log(`${username} disconnected`);
     onlineUsers.delete(ws);
-    const onlineCountMessage = {
-      type: 'online-count',
-      count: onlineUsers.size
-    };
-    broadcast(onlineCountMessage);
+    broadcast({ type: 'online-count', count: onlineUsers.size });
   });
 
   console.log(`${username} connected`);
 });
 
-// Broadcast message to all connected clients
 function broadcast(msg) {
   wss.clients.forEach(client => {
     if (client.readyState === WebSocket.OPEN) {
