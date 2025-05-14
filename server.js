@@ -1,5 +1,7 @@
 const WebSocket = require('ws');
-const wss = new WebSocket.Server({ port: 8080 });
+const port = process.env.PORT || 8080; // Use Render's port or 8080 for local development
+
+const wss = new WebSocket.Server({ port });
 
 const usernames = [
   "Keyboard Warrior", "Knight Stealth", "Pixel Ninja", "Dark Coder",
@@ -41,4 +43,4 @@ wss.on('connection', (ws) => {
   console.log(`${username} connected`);
 });
 
-console.log('✅ WebSocket server running at ws://localhost:8080');
+console.log(`✅ WebSocket server running at ws://localhost:${port}`);
