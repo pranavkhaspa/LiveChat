@@ -79,40 +79,36 @@
         console.log("Connected to WebSocket");
       };
 
-      socket.onmessage = async (event) => {
-        try {
-          // Check if event.data is a string or a ReadableStream, then parse it as JSON
-          const data = JSON.parse(typeof event.data === 'string' ? event.data : await event.data.text());
+     socket.onmessage = async (event) => {
+  try {
+    // Parse the incoming message
+    const data = JSON.parse(typeof event.data === 'string' ? event.data : await event.data.text());
 
-          // Handle different message types
-          if (data.type === 'init') return;
+    // Check for different types of messages
+    if (data.type === 'init') return; // Ignore init messages
 
-          if (data.type === 'chat') {
-            const isMe = data.from === myUsername;
-            appendChatMessage(data, isMe);
-          }
-
-          if (data.type === 'online-count') {
-            onlineCount.textContent = `Users Online: ${data.count}`;
-          }
-
-          if (data.type === 'chat-status') {
-            chatStatus.textContent = data.message;
-          }
-
-          if (data.type === 'chat-disabled') {
-            appendSystemMessage('Chat is currently disabled.');
-          }
-        } catch (error) {
-          console.error("Error parsing WebSocket message:", error);
-          chatStatus.textContent = "❌ Failed to parse message.";
-        }
-      };
-
-      socket.onerror = () => {
-        chatStatus.textContent = "❌ WebSocket connection error.";
-      };
+    if (data.type === 'chat') {
+      const isMe = data.from === myUsername;
+      appendChatMessage(data, isMe); // Append message to chat
     }
+
+    if (data.type === 'online-count') {
+      onlineCount.textContent = `Users Online: ${data.count}`;
+    }
+
+    if (data.type === 'chat-status') {
+      chatStatus.textContent = data.message;
+    }
+
+    if (data.type === 'chat-disabled') {
+      appendSystemMessage('Chat is currently disabled.');
+    }
+  } catch (error) {
+    console.error("Error parsing WebSocket message:", error);
+    chatStatus.textContent = "❌ Failed to parse message.";
+  }
+};
+
 
     function appendChatMessage(data, isMe) {
       const wrapper = document.createElement('div');
