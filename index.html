@@ -1,129 +1,112 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Livestream Chat</title>
-  <script src="https://cdn.tailwindcss.com"></script>  <!-- Tailwind CSS -->
+  <script src="https://cdn.tailwindcss.com"></script>
   <style>
-    /* Custom Glass Pane Effect */
-    .glass {
-      background: rgba(255, 255, 255, 0.1);
-      backdrop-filter: blur(10px);
-      border-radius: 15px;
-    }
-
-    /* Adding shadow to messages for better visibility */
     .msg {
-      padding: 10px;
-      margin: 5px 0;
-      border-radius: 8px;
-      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-      display: flex;
-      align-items: center;
+      max-width: 75%;
+      padding: 10px 14px;
+      margin: 6px;
+      border-radius: 18px;
+      box-shadow: 0 3px 6px rgba(0, 0, 0, 0.1);
+      word-break: break-word;
     }
-
-    .msg img {
-      width: 30px;
-      height: 30px;
-      border-radius: 50%;
-      margin-right: 10px;
-    }
-
     .you {
-      background-color: rgba(0, 255, 0, 0.1); /* Light green for self */
+      background-color: #dcf8c6; /* iMessage green */
+      color: #111;
+      align-self: flex-end;
+      border-bottom-right-radius: 4px;
     }
-
     .other {
-      background-color: rgba(255, 255, 255, 0.2); /* Light gray for others */
+      background-color: #ececec; /* iMessage gray */
+      color: #111;
+      align-self: flex-start;
+      border-bottom-left-radius: 4px;
     }
-
     .system {
-      background-color: rgba(128, 128, 128, 0.1); /* Light gray for system messages */
       text-align: center;
+      color: #ccc;
+      font-size: 0.9rem;
+      margin: 10px 0;
     }
-
-    .chat-disabled {
-      color: red;
-      font-weight: bold;
+    #chatBox::-webkit-scrollbar {
+      width: 6px;
     }
-
-    /* Modal for entering the username */
+    #chatBox::-webkit-scrollbar-thumb {
+      background: #555;
+      border-radius: 3px;
+    }
     #usernameModal {
       display: none;
       position: fixed;
-      top: 0;
-      left: 0;
-      right: 0;
-      bottom: 0;
+      top: 0; left: 0; right: 0; bottom: 0;
       background-color: rgba(0, 0, 0, 0.5);
       justify-content: center;
       align-items: center;
+      z-index: 999;
     }
-
     #usernameModalContent {
-      background-color: #333;
+      background-color: #222;
       padding: 20px;
       border-radius: 10px;
       text-align: center;
-      width: 300px;
+      width: 90%;
+      max-width: 320px;
     }
-
     #usernameInput {
       width: 100%;
       padding: 10px;
       margin-bottom: 15px;
       border: none;
       border-radius: 5px;
-      background-color: #444;
+      background-color: #333;
       color: white;
-      font-size: 16px;
     }
-
     #submitUsernameBtn {
-      background-color: #007BFF;
+      background-color: #4f46e5;
       color: white;
       padding: 10px 15px;
       border: none;
       border-radius: 5px;
       cursor: pointer;
     }
-
     #submitUsernameBtn:hover {
-      background-color: #0056b3;
+      background-color: #3730a3;
     }
   </style>
 </head>
-<body class="bg-gray-900 text-white antialiased">
+<body class="bg-gray-900 text-white font-sans">
 
-  <!-- Modal for username input -->
+  <!-- Modal for username -->
   <div id="usernameModal" class="flex">
     <div id="usernameModalContent">
-      <h2 class="text-xl mb-4 text-white">Enter your name to join the chat:</h2>
-      <input id="usernameInput" type="text" placeholder="Enter your name..." class="bg-gray-700 text-white" />
+      <h2 class="text-lg mb-3 text-white">Enter your name to join the chat:</h2>
+      <input id="usernameInput" type="text" placeholder="Your name..." />
       <button id="submitUsernameBtn">Start Chat</button>
     </div>
   </div>
 
   <div class="flex justify-center items-center min-h-screen px-4">
-    <div class="w-full max-w-3xl bg-gray-800 rounded-lg p-4 glass">
-      <h2 class="text-3xl font-semibold text-center mb-4">💬 Livestream Chat</h2>
-      
-      <div id="onlineCount" class="text-center mb-2 text-lg">Users Online: 0</div>
+    <div class="w-full max-w-md bg-gray-800 rounded-xl p-4 glass shadow-xl">
+      <h2 class="text-2xl font-bold text-center mb-4">💬 Livestream Chat</h2>
+      <div id="onlineCount" class="text-center mb-3 text-sm text-gray-400">Users Online: 0</div>
 
-      <div id="chatBox" class="h-96 overflow-y-scroll mb-4 p-2 bg-transparent rounded-lg"></div>
-      
-      <div class="flex space-x-2">
-        <input id="msgInput" type="text" placeholder="Type your message... 😄" class="w-full p-3 rounded-lg bg-gray-700 text-white focus:outline-none focus:ring-2 focus:ring-blue-500" disabled/>
-        <button id="sendBtn" class="bg-blue-600 text-white p-3 rounded-lg hover:bg-blue-700" disabled>Send</button>
+      <div id="chatBox" class="h-96 overflow-y-auto flex flex-col bg-gray-700 rounded-lg p-3 mb-4"></div>
+
+      <div class="flex gap-2">
+        <input id="msgInput" type="text" placeholder="Message..." class="flex-grow p-3 rounded-lg bg-gray-600 text-white focus:outline-none focus:ring focus:ring-blue-500" disabled />
+        <button id="sendBtn" class="bg-blue-600 px-4 rounded-lg disabled:opacity-50" disabled>Send</button>
       </div>
-      
-      <div id="chatStatus" class="mt-2 text-center text-red-600"></div> <!-- Chat status display -->
+
+      <div id="chatStatus" class="mt-3 text-center text-red-500 text-sm"></div>
     </div>
   </div>
 
   <script>
-    const socket = new WebSocket('wss://livechat-spin.onrender.com');  <!-- Updated WebSocket URL -->
+    const socket = new WebSocket('wss://livechat-spin.onrender.com');
     const chatBox = document.getElementById('chatBox');
     const msgInput = document.getElementById('msgInput');
     const sendBtn = document.getElementById('sendBtn');
@@ -132,49 +115,50 @@
     const usernameModal = document.getElementById('usernameModal');
     const usernameInput = document.getElementById('usernameInput');
     const submitUsernameBtn = document.getElementById('submitUsernameBtn');
-    
+
     let myUsername = null;
     let myAvatar = null;
 
-    // Prompt user for username elegantly using a modal
     function promptForName() {
       usernameModal.style.display = 'flex';
       submitUsernameBtn.onclick = () => {
         const username = usernameInput.value.trim();
         if (username && username !== ' ') {
           myUsername = username;
-          socket.send(JSON.stringify({ type: 'init', username: myUsername }));
+          socket.send(JSON.stringify({ type: 'init', username }));
           usernameModal.style.display = 'none';
           msgInput.disabled = false;
           sendBtn.disabled = false;
         } else {
-          alert('Please enter a valid name!');
+          alert('Enter a valid name!');
         }
       };
     }
 
-    // Handle incoming messages from the server
     socket.onmessage = async (event) => {
       const data = JSON.parse(typeof event.data === 'string' ? event.data : await event.data.text());
 
-      // Handle initialization
       if (data.type === 'init') {
         myAvatar = data.avatar;
         appendMessage(`You are known as: ${myUsername}`, 'system');
       }
 
-      // Handle chat messages
       if (data.type === 'chat') {
-        const cls = data.from === myUsername ? 'you' : 'other';
-        appendMessage(`<img src="${data.avatar}" alt="${data.from}'s avatar"/> ${data.from} [${data.timestamp}]: ${data.message}`, cls);
+        const isMe = data.from === myUsername;
+        const bubble = `
+          <div class="msg ${isMe ? 'you self-end ml-auto' : 'other self-start mr-auto'}">
+            <div class="text-sm font-semibold">${isMe ? 'You' : data.from}</div>
+            <div>${data.message}</div>
+            <div class="text-xs text-gray-500 mt-1">${data.timestamp}</div>
+          </div>`;
+        chatBox.insertAdjacentHTML('beforeend', bubble);
+        chatBox.scrollTop = chatBox.scrollHeight;
       }
 
-      // Handle online user count
       if (data.type === 'online-count') {
         onlineCount.textContent = `Users Online: ${data.count}`;
       }
 
-      // Handle chat status (enabled/disabled)
       if (data.type === 'chat-status') {
         chatStatus.textContent = data.message;
         if (data.message.includes('disabled')) {
@@ -184,22 +168,24 @@
         }
       }
 
-      // Handle chat-disabled message
       if (data.type === 'chat-disabled') {
         appendMessage('Chat is currently disabled. Please try again later.', 'system');
       }
     };
 
-    // Append message to the chatbox
-    function appendMessage(text, className = '') {
+    function appendMessage(text, type = '') {
       const div = document.createElement('div');
-      div.className = `msg ${className}`;
-      div.innerHTML = text;
+      if (type === 'system') {
+        div.className = 'system';
+        div.textContent = text;
+      } else {
+        div.className = `msg ${type}`;
+        div.innerHTML = text;
+      }
       chatBox.appendChild(div);
       chatBox.scrollTop = chatBox.scrollHeight;
     }
 
-    // Send the message to the WebSocket server
     function sendMessage() {
       const text = msgInput.value.trim();
       if (text !== '') {
@@ -208,17 +194,11 @@
       }
     }
 
-    // Send message on button click
     sendBtn.onclick = sendMessage;
-
-    // Send message on pressing "Enter"
     msgInput.addEventListener('keydown', (e) => {
-      if (e.key === 'Enter') {
-        sendMessage();
-      }
+      if (e.key === 'Enter') sendMessage();
     });
 
-    // Start by prompting for username
     promptForName();
   </script>
 </body>
