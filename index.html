@@ -12,29 +12,29 @@
     }
   </style>
 </head>
-<body class="bg-black text-white h-screen flex flex-col">
+<body class="bg-black text-white min-h-screen flex flex-col">
 
   <!-- Username Modal -->
-  <div id="usernameModal" class="fixed inset-0 bg-black bg-opacity-90 flex items-center justify-center z-50">
+  <div id="usernameModal" class="fixed inset-0 bg-black bg-opacity-80 flex items-center justify-center z-50">
     <div class="bg-gray-900 p-6 rounded-xl w-80 text-center space-y-4 shadow-lg border border-gray-700">
       <h2 class="text-xl font-bold">Enter Your Alias</h2>
       <input id="usernameInput" type="text" placeholder="e.g. Mike" class="w-full p-2 rounded bg-gray-800 text-white focus:outline-none"/>
-      <button id="submitUsernameBtn" class="bg-green-600 hover:bg-green-700 px-4 py-2 rounded w-full font-bold">Join Chat</button>
+      <button id="submitUsernameBtn" class="bg-green-600 hover:bg-green-700 px-4 py-2 rounded w-full">Join Chat</button>
     </div>
   </div>
 
   <!-- Chat UI -->
   <main class="flex-grow flex items-center justify-center px-2 py-4">
-    <div class="w-full h-full max-w-2xl flex flex-col bg-gray-900 rounded-xl p-4 shadow-lg border border-gray-800">
+    <div class="w-full max-w-3xl h-full flex flex-col bg-gray-900 rounded-2xl p-4 shadow-lg border border-gray-800">
 
-      <h1 class="text-2xl font-bold text-center mb-2 tracking-wider">Randomlyours Chat</h1>
+      <h1 class="text-3xl font-bold text-center mb-2 tracking-wider">Randomlyours Chat</h1>
       <div id="onlineCount" class="text-center text-gray-400 text-sm mb-3">Users Online: 0</div>
 
-      <div id="chatBox" class="flex-grow overflow-y-auto space-y-4 p-2 pr-1 custom-scrollbar">
+      <div id="chatBox" class="flex-grow overflow-y-auto space-y-4 p-2 pr-1">
         <!-- Messages -->
       </div>
 
-      <div class="mt-2 flex gap-2">
+      <div class="mt-4 flex gap-2">
         <input id="msgInput" type="text" placeholder="Type a message..." class="flex-grow p-3 rounded-xl bg-gray-800 text-white focus:outline-none font-medium" disabled />
         <button id="sendBtn" class="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-xl font-bold" disabled>Send</button>
       </div>
@@ -45,7 +45,8 @@
 
   <!-- Script -->
   <script>
-    let socket;
+    const socket = new WebSocket('wss://livechat-spin.onrender.com');  // Replace with your WebSocket server URL
+
     const chatBox = document.getElementById('chatBox');
     const msgInput = document.getElementById('msgInput');
     const sendBtn = document.getElementById('sendBtn');
@@ -56,12 +57,13 @@
     const submitUsernameBtn = document.getElementById('submitUsernameBtn');
 
     let myUsername = null;
+    let myAvatar = null;
 
     submitUsernameBtn.onclick = () => {
       const name = usernameInput.value.trim();
       if (name) {
         myUsername = name;
-        connectSocket();
+        socket.send(JSON.stringify({ type: 'init', username: name }));
         usernameModal.classList.add('hidden');
         msgInput.disabled = false;
         sendBtn.disabled = false;
@@ -70,50 +72,31 @@
       }
     };
 
-    function connectSocket() {
-      // 👉 Replace with your working WebSocket URL
-      socket = new WebSocket('wss://echo.websocket.events'); // TEMP demo
-      // socket = new WebSocket('wss://livechat-spin.onrender.com'); // your real one
+    socket.onmessage = async (event) => {
+      const data = JSON.parse(typeof event.data === 'string' ? event.data : await event.data.text());
 
-      socket.onopen = () => {
-        socket.send(JSON.stringify({ type: 'init', username: myUsername }));
-        console.log("Connected to WebSocket");
-      };
+      if (data.type === 'init') {
+        myAvatar = data.avatar;
+        return; // Don't show this in chat
+      }
 
-      socket.onmessage = async (event) => {
-        try {
-          // Check if event.data is a string or a ReadableStream, then parse it as JSON
-          const data = JSON.parse(typeof event.data === 'string' ? event.data : await event.data.text());
+      if (data.type === 'chat') {
+        const isMe = data.from === myUsername;
+        appendChatMessage(data, isMe);
+      }
 
-          // Handle different message types
-          if (data.type === 'init') return;
+      if (data.type === 'online-count') {
+        onlineCount.textContent = `Users Online: ${data.count}`;
+      }
 
-          if (data.type === 'chat') {
-            const isMe = data.from === myUsername;
-            appendChatMessage(data, isMe);
-          }
+      if (data.type === 'chat-status') {
+        chatStatus.textContent = data.message;
+      }
 
-          if (data.type === 'online-count') {
-            onlineCount.textContent = `Users Online: ${data.count}`;
-          }
-
-          if (data.type === 'chat-status') {
-            chatStatus.textContent = data.message;
-          }
-
-          if (data.type === 'chat-disabled') {
-            appendSystemMessage('Chat is currently disabled.');
-          }
-        } catch (error) {
-          console.error("Error parsing WebSocket message:", error);
-          chatStatus.textContent = "❌ Failed to parse message.";
-        }
-      };
-
-      socket.onerror = () => {
-        chatStatus.textContent = "❌ WebSocket connection error.";
-      };
-    }
+      if (data.type === 'chat-disabled') {
+        appendSystemMessage('Chat is currently disabled.');
+      }
+    };
 
     function appendChatMessage(data, isMe) {
       const wrapper = document.createElement('div');
@@ -123,6 +106,7 @@
       bubble.className = `max-w-[75%] p-4 rounded-2xl text-sm shadow-md flex items-start gap-3 ${isMe ? 'bg-green-700 text-white rounded-br-none' : 'bg-gray-800 text-white rounded-bl-none'}`;
 
       bubble.innerHTML = `
+        <img src="${data.avatar}" class="w-10 h-10 rounded-full border border-gray-600 shadow"/>
         <div>
           <div class="font-bold text-base">${data.from}</div>
           <div class="font-medium text-sm">${data.message}</div>
