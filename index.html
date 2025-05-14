@@ -47,9 +47,63 @@
       color: red;
       font-weight: bold;
     }
+
+    /* Modal for entering the username */
+    #usernameModal {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background-color: rgba(0, 0, 0, 0.5);
+      justify-content: center;
+      align-items: center;
+    }
+
+    #usernameModalContent {
+      background-color: #333;
+      padding: 20px;
+      border-radius: 10px;
+      text-align: center;
+      width: 300px;
+    }
+
+    #usernameInput {
+      width: 100%;
+      padding: 10px;
+      margin-bottom: 15px;
+      border: none;
+      border-radius: 5px;
+      background-color: #444;
+      color: white;
+      font-size: 16px;
+    }
+
+    #submitUsernameBtn {
+      background-color: #007BFF;
+      color: white;
+      padding: 10px 15px;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+
+    #submitUsernameBtn:hover {
+      background-color: #0056b3;
+    }
   </style>
 </head>
 <body class="bg-gray-900 text-white antialiased">
+
+  <!-- Modal for username input -->
+  <div id="usernameModal" class="flex">
+    <div id="usernameModalContent">
+      <h2 class="text-xl mb-4 text-white">Enter your name to join the chat:</h2>
+      <input id="usernameInput" type="text" placeholder="Enter your name..." class="bg-gray-700 text-white" />
+      <button id="submitUsernameBtn">Start Chat</button>
+    </div>
+  </div>
 
   <div class="flex justify-center items-center min-h-screen px-4">
     <div class="w-full max-w-3xl bg-gray-800 rounded-lg p-4 glass">
@@ -60,8 +114,8 @@
       <div id="chatBox" class="h-96 overflow-y-scroll mb-4 p-2 bg-transparent rounded-lg"></div>
       
       <div class="flex space-x-2">
-        <input id="msgInput" type="text" placeholder="Type your message... 😄" class="w-full p-3 rounded-lg bg-gray-700 text-white focus:outline-none focus:ring-2 focus:ring-blue-500"/>
-        <button id="sendBtn" class="bg-blue-600 text-white p-3 rounded-lg hover:bg-blue-700">Send</button>
+        <input id="msgInput" type="text" placeholder="Type your message... 😄" class="w-full p-3 rounded-lg bg-gray-700 text-white focus:outline-none focus:ring-2 focus:ring-blue-500" disabled/>
+        <button id="sendBtn" class="bg-blue-600 text-white p-3 rounded-lg hover:bg-blue-700" disabled>Send</button>
       </div>
       
       <div id="chatStatus" class="mt-2 text-center text-red-600"></div> <!-- Chat status display -->
@@ -75,19 +129,28 @@
     const sendBtn = document.getElementById('sendBtn');
     const onlineCount = document.getElementById('onlineCount');
     const chatStatus = document.getElementById('chatStatus');
+    const usernameModal = document.getElementById('usernameModal');
+    const usernameInput = document.getElementById('usernameInput');
+    const submitUsernameBtn = document.getElementById('submitUsernameBtn');
     
     let myUsername = null;
     let myAvatar = null;
 
-    // Ask the user for their name on first connection
+    // Prompt user for username elegantly using a modal
     function promptForName() {
-      const username = prompt("Please enter your name:", "Guest");
-      if (username && username.trim() !== '') {
-        myUsername = username.trim();
-        socket.send(JSON.stringify({ type: 'init', username: myUsername }));
-      } else {
-        promptForName();  // Re-prompt if name is empty
-      }
+      usernameModal.style.display = 'flex';
+      submitUsernameBtn.onclick = () => {
+        const username = usernameInput.value.trim();
+        if (username && username !== ' ') {
+          myUsername = username;
+          socket.send(JSON.stringify({ type: 'init', username: myUsername }));
+          usernameModal.style.display = 'none';
+          msgInput.disabled = false;
+          sendBtn.disabled = false;
+        } else {
+          alert('Please enter a valid name!');
+        }
+      };
     }
 
     // Handle incoming messages from the server
