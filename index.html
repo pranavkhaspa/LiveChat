@@ -22,13 +22,15 @@
   <button id="sendBtn">Send</button>
 
   <script>
-    const socket = new WebSocket('ws://localhost:8080');
+    // Connect to the WebSocket server on Render
+    const socket = new WebSocket('wss://livechat-spin.onrender.com');  <!-- Updated WebSocket URL -->
     const chatBox = document.getElementById('chatBox');
     const msgInput = document.getElementById('msgInput');
     const sendBtn = document.getElementById('sendBtn');
 
     let myUsername = null;
 
+    // Handle incoming messages from the server
     socket.onmessage = async (event) => {
       const data = JSON.parse(typeof event.data === 'string' ? event.data : await event.data.text());
 
@@ -44,6 +46,7 @@
       }
     };
 
+    // Append message to the chatbox
     function appendMessage(text, className = '') {
       const div = document.createElement('div');
       div.className = `msg ${className}`;
@@ -52,6 +55,7 @@
       chatBox.scrollTop = chatBox.scrollHeight;
     }
 
+    // Send the message to the WebSocket server
     function sendMessage() {
       const text = msgInput.value.trim();
       if (text !== '') {
@@ -60,9 +64,14 @@
       }
     }
 
+    // Send message on button click
     sendBtn.onclick = sendMessage;
+
+    // Send message on pressing "Enter"
     msgInput.addEventListener('keydown', (e) => {
-      if (e.key === 'Enter') sendMessage();
+      if (e.key === 'Enter') {
+        sendMessage();
+      }
     });
   </script>
 </body>
