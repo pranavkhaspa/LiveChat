@@ -1,168 +1,341 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <meta name="description" content="Join the Randomlyours live chat. Meet new people and have fun chatting in a secure environment." />
-  <meta name="keywords" content="chat, live chat, randomlyours, random chat, online chat, meet new people, random users" />
-  <meta name="author" content="Randomlyours" />
-  <meta property="og:title" content="Randomlyours Live Chat" />
-  <meta property="og:description" content="Join the Randomlyours live chat to meet new people and have fun conversations." />
-  <meta property="og:image" content="your_image_url_here.jpg" />
-  <meta property="og:url" content="https://www.randomlyours.com" />
-  <title>Randomlyours - Live Chat</title>
-  <script src="https://cdn.tailwindcss.com"></script>
-  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@500;700&display=swap" rel="stylesheet">
-  <style>
-    body {
-      font-family: 'Orbitron', sans-serif;
-    }
-  </style>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Randomlyours - Live Chat</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;500;700&display=swap" rel="stylesheet">
+  <style>
+    body {
+      font-family: 'Orbitron', sans-serif;
+    }
+    .custom-scrollbar::-webkit-scrollbar {
+      width: 6px;
+    }
+    .custom-scrollbar::-webkit-scrollbar-thumb {
+      background-color: rgba(100, 100, 100, 0.5);
+      border-radius: 3px;
+    }
+    .custom-scrollbar::-webkit-scrollbar-track {
+      background-color: rgba(31, 41, 55, 0.5); /* bg-gray-800 equivalent */
+      border-radius: 3px;
+    }
+    /* Basic styling for the error message in modal */
+    #usernameError {
+        transition: opacity 0.3s ease-in-out;
+    }
+  </style>
 </head>
-<body class="bg-black text-white h-screen flex flex-col">
+<body class="bg-black text-white h-screen flex flex-col antialiased">
 
-  <!-- Username Modal -->
-  <div id="usernameModal" class="fixed inset-0 bg-black bg-opacity-90 flex items-center justify-center z-50">
-    <div class="bg-gray-900 p-6 rounded-xl w-80 text-center space-y-4 shadow-lg border border-gray-700">
-      <h2 class="text-xl font-bold">Enter Your Alias</h2>
-      <input id="usernameInput" type="text" placeholder="e.g. Mike" class="w-full p-2 rounded bg-gray-800 text-white focus:outline-none"/>
-      <button id="submitUsernameBtn" class="bg-green-600 hover:bg-green-700 px-4 py-2 rounded w-full font-bold">Join Chat</button>
-    </div>
-  </div>
+  <div id="usernameModal" class="fixed inset-0 bg-black bg-opacity-90 flex items-center justify-center z-50 transition-opacity duration-300 ease-in-out">
+    <div class="bg-gray-900 p-6 rounded-xl w-80 text-center space-y-4 shadow-2xl border border-gray-700 transform transition-all duration-300 ease-in-out scale-95 opacity-0" 
+         style="animation: fadeInScale 0.3s forwards;">
+      <h2 class="text-xl font-bold tracking-wide">Enter Your Alias</h2>
+      <input id="usernameInput" type="text" placeholder="e.g. CosmicVoyager" class="w-full p-3 rounded-lg bg-gray-800 text-white focus:outline-none focus:ring-2 focus:ring-green-500 placeholder-gray-500"/>
+      <div id="usernameError" class="text-red-500 text-sm min-h-[1.25rem] text-left px-1"></div>
+      <button id="submitUsernameBtn" class="bg-green-600 hover:bg-green-700 px-4 py-3 rounded-lg w-full font-bold tracking-wider transition-colors duration-150">Join Chat</button>
+    </div>
+  </div>
+  <style>
+    @keyframes fadeInScale {
+      to {
+        opacity: 1;
+        transform: scale(1);
+      }
+    }
+  </style>
 
-  <!-- Chat UI -->
-  <main class="flex-grow flex items-center justify-center px-2 py-4">
-    <div class="w-full h-full max-w-2xl flex flex-col bg-gray-900 rounded-xl p-4 shadow-lg border border-gray-800">
+  <main class="flex-grow flex items-center justify-center px-2 py-4 md:p-4">
+    <div class="w-full h-full max-w-2xl flex flex-col bg-gray-900 rounded-xl p-3 md:p-4 shadow-2xl border border-gray-800">
 
-      <h1 class="text-2xl font-bold text-center mb-2 tracking-wider">Randomlyours Chat</h1>
-      <div id="onlineCount" class="text-center text-gray-400 text-sm mb-3">Users Online: 0</div>
+      <div class="flex justify-between items-center mb-3">
+        <h1 class="text-xl md:text-2xl font-bold tracking-wider">Randomlyours Chat</h1>
+        <div id="onlineCount" class="text-gray-400 text-xs md:text-sm">Users Online: 0</div>
+      </div>
 
-      <div id="chatBox" class="flex-grow overflow-y-auto space-y-4 p-2 pr-1 custom-scrollbar">
-        <!-- Messages -->
-      </div>
+      <div id="chatBox" class="flex-grow overflow-y-auto space-y-4 p-2 pr-1 custom-scrollbar bg-gray-800/30 rounded-lg mb-3">
+        </div>
 
-      <div class="mt-2 flex gap-2">
-        <input id="msgInput" type="text" placeholder="Type a message..." class="flex-grow p-3 rounded-xl bg-gray-800 text-white focus:outline-none font-medium" disabled />
-        <button id="sendBtn" class="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-xl font-bold" disabled>Send</button>
-      </div>
+      <div class="mt-auto flex gap-2 items-center">
+        <input id="msgInput" type="text" placeholder="Type a message..." class="flex-grow p-3 rounded-xl bg-gray-800 text-white focus:outline-none focus:ring-2 focus:ring-green-500 placeholder-gray-500 font-medium" disabled />
+        <button id="sendBtn" class="bg-green-600 hover:bg-green-700 text-white px-5 py-3 rounded-xl font-bold tracking-wider transition-colors duration-150 flex items-center justify-center" disabled>
+          <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="mr-0 md:mr-2"><line x1="22" y1="2" x2="11" y2="13"></line><polygon points="22 2 15 22 11 13 2 9 22 2"></polygon></svg>
+          <span class="hidden md:inline">Send</span>
+        </button>
+      </div>
 
-      <div id="chatStatus" class="mt-2 text-center text-sm text-red-500 font-semibold"></div>
-    </div>
-  </main>
+      <div id="chatStatus" class="mt-2 text-center text-xs md:text-sm text-red-500 font-semibold min-h-[1.25rem]"></div>
+    </div>
+  </main>
 
-  <!-- Script -->
-  <script>
-    let socket;
-    const chatBox = document.getElementById('chatBox');
-    const msgInput = document.getElementById('msgInput');
-    const sendBtn = document.getElementById('sendBtn');
-    const onlineCount = document.getElementById('onlineCount');
-    const chatStatus = document.getElementById('chatStatus');
-    const usernameModal = document.getElementById('usernameModal');
-    const usernameInput = document.getElementById('usernameInput');
-    const submitUsernameBtn = document.getElementById('submitUsernameBtn');
+  <script>
+    let socket;
+    let myUsername = null;
+    let myAvatar = null; // This could be set by the server upon init
 
-    let myUsername = null;
+    const chatBox = document.getElementById('chatBox');
+    const msgInput = document.getElementById('msgInput');
+    const sendBtn = document.getElementById('sendBtn');
+    const onlineCount = document.getElementById('onlineCount');
+    const chatStatus = document.getElementById('chatStatus');
+    const usernameModal = document.getElementById('usernameModal');
+    const usernameInput = document.getElementById('usernameInput');
+    const submitUsernameBtn = document.getElementById('submitUsernameBtn');
+    const usernameError = document.getElementById('usernameError'); // Get the error display element
 
-    submitUsernameBtn.onclick = () => {
-      const name = usernameInput.value.trim();
-      if (name) {
-        myUsername = name;
-        connectSocket();
-        usernameModal.classList.add('hidden');
-        msgInput.disabled = false;
-        sendBtn.disabled = false;
-      } else {
-        alert('Enter a valid name.');
-      }
-    };
+    // Make modal visible on load for username input
+    window.addEventListener('load', () => {
+        const modalContent = usernameModal.querySelector('.bg-gray-900');
+        if (modalContent) {
+            modalContent.style.opacity = '1';
+            modalContent.style.transform = 'scale(1)';
+        }
+        usernameInput.focus();
+    });
+    
+    usernameInput.addEventListener('keypress', (e) => {
+        if (e.key === 'Enter') {
+            submitUsernameBtn.click();
+        }
+    });
 
-    function connectSocket() {
-      // Connect to the live WebSocket URL
-      socket = new WebSocket('wss://livechat-spin.onrender.com'); // your real WebSocket URL
+    submitUsernameBtn.onclick = () => {
+      const name = usernameInput.value.trim();
+      if (name && name.length >= 2 && name.length <= 20) { // Basic validation
+        myUsername = name;
+        // Potentially generate a simple avatar URL or let server assign one
+        // myAvatar = `https://placehold.co/40x40/7F00FF/FFFFFF?text=${name.substring(0,1).toUpperCase()}`; 
+        connectSocket();
+        usernameModal.classList.add('hidden'); // Or animate out
+        msgInput.disabled = false;
+        sendBtn.disabled = false;
+        msgInput.focus();
+        if(usernameError) usernameError.textContent = ''; // Clear error on success
+      } else {
+        if(usernameError) {
+            if (!name) {
+                usernameError.textContent = 'Alias cannot be empty.';
+            } else if (name.length < 2) {
+                usernameError.textContent = 'Alias must be at least 2 characters.';
+            } else if (name.length > 20) {
+                usernameError.textContent = 'Alias must be 20 characters or less.';
+            }
+        }
+        usernameInput.focus();
+      }
+    };
 
-      socket.onopen = () => {
-        socket.send(JSON.stringify({ type: 'init', username: myUsername }));
-        console.log("Connected to WebSocket");
-      };
+    function connectSocket() {
+      // Replace with your actual WebSocket server URL
+      socket = new WebSocket('wss://livechat-spin.onrender.com'); 
 
-      socket.onmessage = async (event) => {
-        try {
-          // Parse the incoming message
-          const data = JSON.parse(typeof event.data === 'string' ? event.data : await event.data.text());
+      socket.onopen = () => {
+        console.log('WebSocket connection established.');
+        chatStatus.textContent = 'Connected to chat server.';
+        chatStatus.classList.remove('text-red-500');
+        chatStatus.classList.add('text-green-500');
+        // Send initialization message with username (and potentially chosen avatar)
+        socket.send(JSON.stringify({ type: 'init', username: myUsername, avatar: myAvatar }));
+      };
 
-          // Check for different types of messages
-          if (data.type === 'init') return; // Ignore init messages
+      socket.onmessage = async (event) => {
+        try {
+          const serverData = JSON.parse(typeof event.data === 'string' ? event.data : await event.data.text());
+          console.log('Received data:', serverData);
 
-          if (data.type === 'chat') {
-            const isMe = data.from === myUsername;
-            appendChatMessage(data, isMe); // Append message to chat
-          }
+          switch (serverData.type) {
+            case 'init':
+              // Server confirms initialization, might assign an avatar or confirm username
+              myUsername = serverData.username || myUsername; // Update if server changes/confirms it
+              myAvatar = serverData.avatar; // Store assigned avatar
+              console.log(`Initialized as ${myUsername} with avatar ${myAvatar}`);
+              break;
 
-          if (data.type === 'online-count') {
-            onlineCount.textContent = `Users Online: ${data.count}`;
-          }
+            case 'chat':
+              // This is the crucial part for fixing the message display
+              let finalPayload = {
+                  from: serverData.from,
+                  avatar: serverData.avatar,
+                  message: serverData.message,
+                  timestamp: serverData.timestamp
+              };
+              let isMe = serverData.from === myUsername;
 
-          if (data.type === 'chat-status') {
-            chatStatus.textContent = data.message;
-          }
+              // Check if serverData.message itself is a stringified JSON
+              if (typeof serverData.message === 'string') {
+                  try {
+                      const innerData = JSON.parse(serverData.message);
+                      // If parsing is successful and innerData contains 'from' and 'message',
+                      // it means the actual chat data was nested.
+                      if (innerData && typeof innerData.from === 'string' && typeof innerData.message === 'string') {
+                          finalPayload.from = innerData.from;
+                          finalPayload.avatar = innerData.avatar; // Use avatar from inner data
+                          finalPayload.message = innerData.message; // This is the actual text, e.g., "ha"
+                          finalPayload.timestamp = innerData.timestamp || serverData.timestamp; // Prefer inner timestamp
+                          isMe = innerData.from === myUsername; // 'isMe' should be based on the actual sender
+                      }
+                      // If innerData is not in the expected format, finalPayload.message remains originalServerData.message.
+                  } catch (e) {
+                      // Parsing failed: serverData.message is not a JSON string, likely plain text.
+                      // finalPayload is already correctly set up with serverData.
+                  }
+              }
 
-          if (data.type === 'chat-disabled') {
-            appendSystemMessage('Chat is currently disabled.');
-          }
-        } catch (error) {
-          console.error("Error parsing WebSocket message:", error);
-          chatStatus.textContent = "❌ Failed to parse message.";
-        }
-      };
-    }
+              if (finalPayload.message != null && finalPayload.from != null) {
+                  appendChatMessage(finalPayload, isMe);
+              } else {
+                  console.warn('Received chat data is incomplete or unprocessable:', serverData);
+                  if (serverData.message != null) {
+                      appendSystemMessage(`System: Received unprocessable message content: ${serverData.message}`);
+                  }
+              }
+              break;
 
-    function appendChatMessage(data, isMe) {
-      const wrapper = document.createElement('div');
-      wrapper.className = `flex ${isMe ? 'justify-end' : 'justify-start'}`;
+            case 'online-count':
+              onlineCount.textContent = `Users Online: ${serverData.count}`;
+              break;
 
-      const bubble = document.createElement('div');
-      bubble.className = `max-w-[75%] p-4 rounded-2xl text-sm shadow-md flex items-start gap-3 ${isMe ? 'bg-green-700 text-white rounded-br-none' : 'bg-gray-800 text-white rounded-bl-none'}`;
+            case 'chat-status': // Server messages like 'User X joined/left'
+              appendSystemMessage(serverData.message, serverData.statusType || 'info');
+              break;
 
-      bubble.innerHTML = `
-        <div>
-          <div class="font-bold text-base">${data.from}</div>
-          <div class="font-medium text-sm">${data.message}</div>
-          <div class="text-xs text-gray-400 mt-1">${new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</div>
-        </div>
-      `;
+            case 'chat-disabled':
+              appendSystemMessage('Chat is currently disabled by the server.', 'warning');
+              msgInput.disabled = true;
+              sendBtn.disabled = true;
+              break;
+            
+            case 'error': // Server explicitly sends an error message
+                chatStatus.textContent = `❌ Server error: ${serverData.message}`;
+                chatStatus.classList.add('text-red-500');
+                chatStatus.classList.remove('text-green-500');
+                break;
 
-      wrapper.appendChild(bubble);
-      chatBox.appendChild(wrapper);
-      chatBox.scrollTop = chatBox.scrollHeight;
-    }
+            default:
+              console.warn('Unknown message type received:', serverData);
+          }
+        } catch (err) {
+          console.error("Error parsing WebSocket message or processing data:", err);
+          chatStatus.textContent = "❌ Error processing message from server.";
+          chatStatus.classList.add('text-red-500');
+          chatStatus.classList.remove('text-green-500');
+        }
+      };
 
-    function appendSystemMessage(text) {
-      const el = document.createElement('div');
-      el.className = 'text-center text-sm text-gray-500 italic';
-      el.textContent = text;
-      chatBox.appendChild(el);
-      chatBox.scrollTop = chatBox.scrollHeight;
-    }
+      socket.onclose = (event) => {
+        console.log('WebSocket connection closed:', event);
+        chatStatus.textContent = 'Disconnected. Attempting to reconnect...';
+        chatStatus.classList.add('text-red-500');
+        chatStatus.classList.remove('text-green-500');
+        msgInput.disabled = true;
+        sendBtn.disabled = true;
+        // Implement reconnection logic if desired, e.g., after a timeout
+        // setTimeout(connectSocket, 5000); 
+      };
 
-    function sendMessage() {
-      const text = msgInput.value.trim();
-      if (text) {
-        const msg = {
-          type: 'chat',
-          from: myUsername,
-          message: text
-        };
-        socket.send(JSON.stringify(msg));
-        msgInput.value = '';
-        appendChatMessage(msg, true); // Show immediately
-      }
-    }
+      socket.onerror = (error) => {
+        console.error('WebSocket error:', error);
+        chatStatus.textContent = '❌ Connection error. Please check console.';
+        chatStatus.classList.add('text-red-500');
+        chatStatus.classList.remove('text-green-500');
+        msgInput.disabled = true;
+        sendBtn.disabled = true;
+      };
+    }
 
-    sendBtn.onclick = sendMessage;
-    msgInput.addEventListener('keydown', (e) => {
-      if (e.key === 'Enter') sendMessage();
-    });
-  </script>
+    function appendChatMessage(data, isMe) {
+      // Ensure data.message and data.from are present
+      if (data.message == null || data.from == null) {
+          console.warn('appendChatMessage called with incomplete data:', data);
+          return;
+      }
+
+      const wrapper = document.createElement('div');
+      wrapper.className = `flex mb-3 ${isMe ? 'justify-end' : 'justify-start'}`;
+
+      const bubble = document.createElement('div');
+      bubble.className = `max-w-[75%] md:max-w-[70%] p-3 rounded-2xl text-sm shadow-md flex items-start gap-2.5 ${isMe ? 'bg-green-700 text-white rounded-br-none' : 'bg-gray-700 text-gray-100 rounded-bl-none'}`;
+      
+      // Default avatar using placehold.co
+      const avatarLetter = (data.from && data.from.length > 0) ? data.from.substring(0,1).toUpperCase() : 'U';
+      const avatarColor = isMe ? '4ade80' : '60a5fa'; // Tailwind green-400, blue-400
+      const defaultAvatar = `https://placehold.co/40x40/${avatarColor}/FFFFFF?text=${avatarLetter}&font=orbitron`;
+      
+      // Sanitize message content before inserting as HTML (basic example)
+      // For robust sanitization, use a library like DOMPurify if handling complex user HTML.
+      const messageContent = String(data.message).replace(/</g, "&lt;").replace(/>/g, "&gt;");
+
+
+      bubble.innerHTML = `
+        <img src="${data.avatar || defaultAvatar}" 
+             alt="${data.from} avatar" 
+             class="w-8 h-8 md:w-10 md:h-10 rounded-full object-cover border-2 ${isMe ? 'border-green-400' : 'border-blue-400'}" 
+             onerror="this.onerror=null; this.src='https://placehold.co/40x40/FF0000/FFFFFF?text=X&font=orbitron';" />
+        <div class="flex-1">
+          <div class="font-bold text-xs md:text-sm ${isMe ? 'text-green-200' : 'text-blue-300'}">${data.from}</div>
+          <div class="font-medium text-sm md:text-base break-words leading-snug">${messageContent}</div>
+          <div class="text-xs text-gray-400 mt-1 text-right">${data.timestamp || new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</div>
+        </div>
+      `;
+
+      wrapper.appendChild(bubble);
+      chatBox.appendChild(wrapper);
+      chatBox.scrollTop = chatBox.scrollHeight; // Auto-scroll to the latest message
+    }
+
+    function appendSystemMessage(text, type = 'info') {
+      const el = document.createElement('div');
+      let textColor = 'text-gray-500'; // Default for info
+      if (type === 'warning') textColor = 'text-yellow-500';
+      if (type === 'error') textColor = 'text-red-500';
+      if (type === 'success') textColor = 'text-green-500';
+
+      el.className = `text-center text-xs md:text-sm italic ${textColor} py-1`;
+      el.textContent = text;
+      chatBox.appendChild(el);
+      chatBox.scrollTop = chatBox.scrollHeight;
+    }
+
+    function sendMessage() {
+      const text = msgInput.value.trim();
+      if (text && socket && socket.readyState === WebSocket.OPEN) {
+        const msg = {
+          type: 'chat',
+          from: myUsername, // 'from' is set here, server might also verify/use session data
+          avatar: myAvatar,  // Send current avatar; server might override or use its own logic
+          message: text,
+          timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+        };
+        socket.send(JSON.stringify(msg));
+        
+        // Optimistically append user's own message (server will also broadcast it)
+        // This makes the UI feel faster. Ensure server's broadcast doesn't duplicate.
+        // Or, rely solely on server broadcast. For now, let's assume server broadcast is primary.
+        // appendChatMessage(msg, true); // If you want optimistic update
+
+        msgInput.value = ''; // Clear input field
+        msgInput.focus();
+      } else if (!text) {
+        // Maybe a small shake animation or a temporary placeholder change
+        msgInput.placeholder = "Cannot send an empty message!";
+        setTimeout(() => { msgInput.placeholder = "Type a message..."; }, 1500);
+      } else if (!socket || socket.readyState !== WebSocket.OPEN) {
+        chatStatus.textContent = 'Not connected to chat. Cannot send message.';
+        chatStatus.classList.add('text-red-500');
+      }
+    }
+
+    sendBtn.onclick = sendMessage;
+    msgInput.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter' && !e.shiftKey) { // Send on Enter, allow Shift+Enter for newline
+        e.preventDefault(); // Prevents newline in input if that's not desired
+        sendMessage();
+      }
+    });
+
+  </script>
 </body>
 </html>
+
