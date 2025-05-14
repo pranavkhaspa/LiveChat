@@ -10,12 +10,12 @@ const usernames = [
 ];
 
 const avatars = [
-  'https://github.com/pranavkhaspa/LiveChat/blob/main/1.jpg?raw=true',
-  'https://github.com/pranavkhaspa/LiveChat/blob/main/2.jpg?raw=true',
-  'https://github.com/pranavkhaspa/LiveChat/blob/main/3.jpg?raw=true',
-  'https://github.com/pranavkhaspa/LiveChat/blob/main/4.jpg?raw=true',
-  'https://github.com/pranavkhaspa/LiveChat/blob/main/5.jpg?raw=true',
-  'https://github.com/pranavkhaspa/LiveChat/blob/main/6.jpg?raw=true'
+'https://github.com/pranavkhaspa/RandomlyOurs/blob/main/1.jpg?raw=true',
+'https://github.com/pranavkhaspa/RandomlyOurs/blob/main/2.jpg?raw=true',
+'https://github.com/pranavkhaspa/RandomlyOurs/blob/main/3.jpg?raw=true',
+'https://github.com/pranavkhaspa/RandomlyOurs/blob/main/4.jpg?raw=true',
+'https://github.com/pranavkhaspa/RandomlyOurs/blob/main/5.jpg?raw=true',
+ 'https://github.com/pranavkhaspa/RandomlyOurs/blob/main/6.jpg?raw=true'
 ];
 
 let chatEnabled = true;
