@@ -2,24 +2,52 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Livestream Chat</title>
+  <script src="https://cdn.tailwindcss.com"></script>  <!-- Tailwind CSS -->
   <style>
-    body { font-family: Arial; background: #f5f5f5; padding: 20px; }
-    #chatBox { height: 400px; overflow-y: scroll; border: 1px solid #ccc; background: #fff; padding: 10px; margin-bottom: 10px; }
-    .msg { margin: 5px 0; }
-    .you { color: green; }
-    .other { color: #333; }
-    .system { color: gray; font-style: italic; }
-    .timestamp { font-size: 0.8em; color: #999; margin-left: 5px; }
-    input, button { padding: 10px; font-size: 16px; }
-    #msgInput { width: 70%; }
+    /* Custom Glass Pane Effect */
+    .glass {
+      background: rgba(255, 255, 255, 0.1);
+      backdrop-filter: blur(10px);
+      border-radius: 15px;
+    }
+
+    /* Adding shadow to messages for better visibility */
+    .msg {
+      padding: 10px;
+      margin: 5px 0;
+      border-radius: 8px;
+      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    }
+
+    .you {
+      background-color: rgba(0, 255, 0, 0.1); /* Light green for self */
+    }
+
+    .other {
+      background-color: rgba(255, 255, 255, 0.2); /* Light gray for others */
+    }
+
+    .system {
+      background-color: rgba(128, 128, 128, 0.1); /* Light gray for system messages */
+    }
   </style>
 </head>
-<body>
-  <h2>💬 Livestream Chat</h2>
-  <div id="chatBox"></div>
-  <input id="msgInput" placeholder="Type your message... 😄" />
-  <button id="sendBtn">Send</button>
+<body class="bg-gray-900 text-white antialiased">
+
+  <div class="flex justify-center items-center min-h-screen px-4">
+    <div class="w-full max-w-3xl bg-gray-800 rounded-lg p-4 glass">
+      <h2 class="text-3xl font-semibold text-center mb-4">💬 Livestream Chat</h2>
+      
+      <div id="chatBox" class="h-96 overflow-y-scroll mb-4 p-2 bg-transparent rounded-lg"></div>
+      
+      <div class="flex space-x-2">
+        <input id="msgInput" type="text" placeholder="Type your message... 😄" class="w-full p-3 rounded-lg bg-gray-700 text-white focus:outline-none focus:ring-2 focus:ring-blue-500"/>
+        <button id="sendBtn" class="bg-blue-600 text-white p-3 rounded-lg hover:bg-blue-700">Send</button>
+      </div>
+    </div>
+  </div>
 
   <script>
     // Connect to the WebSocket server on Render
