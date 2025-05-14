@@ -19,6 +19,15 @@
       margin: 5px 0;
       border-radius: 8px;
       box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+      display: flex;
+      align-items: center;
+    }
+
+    .msg img {
+      width: 30px;
+      height: 30px;
+      border-radius: 50%;
+      margin-right: 10px;
     }
 
     .you {
@@ -31,6 +40,12 @@
 
     .system {
       background-color: rgba(128, 128, 128, 0.1); /* Light gray for system messages */
+      text-align: center;
+    }
+
+    .chat-disabled {
+      color: red;
+      font-weight: bold;
     }
   </style>
 </head>
@@ -40,37 +55,75 @@
     <div class="w-full max-w-3xl bg-gray-800 rounded-lg p-4 glass">
       <h2 class="text-3xl font-semibold text-center mb-4">💬 Livestream Chat</h2>
       
+      <div id="onlineCount" class="text-center mb-2 text-lg">Users Online: 0</div>
+
       <div id="chatBox" class="h-96 overflow-y-scroll mb-4 p-2 bg-transparent rounded-lg"></div>
       
       <div class="flex space-x-2">
         <input id="msgInput" type="text" placeholder="Type your message... 😄" class="w-full p-3 rounded-lg bg-gray-700 text-white focus:outline-none focus:ring-2 focus:ring-blue-500"/>
         <button id="sendBtn" class="bg-blue-600 text-white p-3 rounded-lg hover:bg-blue-700">Send</button>
       </div>
+      
+      <div id="chatStatus" class="mt-2 text-center text-red-600"></div> <!-- Chat status display -->
     </div>
   </div>
 
   <script>
-    // Connect to the WebSocket server on Render
     const socket = new WebSocket('wss://livechat-spin.onrender.com');  <!-- Updated WebSocket URL -->
     const chatBox = document.getElementById('chatBox');
     const msgInput = document.getElementById('msgInput');
     const sendBtn = document.getElementById('sendBtn');
-
+    const onlineCount = document.getElementById('onlineCount');
+    const chatStatus = document.getElementById('chatStatus');
+    
     let myUsername = null;
+    let myAvatar = null;
+
+    // Ask the user for their name on first connection
+    function promptForName() {
+      const username = prompt("Please enter your name:", "Guest");
+      if (username && username.trim() !== '') {
+        myUsername = username.trim();
+        socket.send(JSON.stringify({ type: 'init', username: myUsername }));
+      } else {
+        promptForName();  // Re-prompt if name is empty
+      }
+    }
 
     // Handle incoming messages from the server
     socket.onmessage = async (event) => {
       const data = JSON.parse(typeof event.data === 'string' ? event.data : await event.data.text());
 
+      // Handle initialization
       if (data.type === 'init') {
-        myUsername = data.username;
+        myAvatar = data.avatar;
         appendMessage(`You are known as: ${myUsername}`, 'system');
       }
 
+      // Handle chat messages
       if (data.type === 'chat') {
-        const label = data.from === myUsername ? 'me' : data.from;
         const cls = data.from === myUsername ? 'you' : 'other';
-        appendMessage(`${label} [${data.timestamp}]: ${data.message}`, cls);
+        appendMessage(`<img src="${data.avatar}" alt="${data.from}'s avatar"/> ${data.from} [${data.timestamp}]: ${data.message}`, cls);
+      }
+
+      // Handle online user count
+      if (data.type === 'online-count') {
+        onlineCount.textContent = `Users Online: ${data.count}`;
+      }
+
+      // Handle chat status (enabled/disabled)
+      if (data.type === 'chat-status') {
+        chatStatus.textContent = data.message;
+        if (data.message.includes('disabled')) {
+          chatStatus.classList.add('chat-disabled');
+        } else {
+          chatStatus.classList.remove('chat-disabled');
+        }
+      }
+
+      // Handle chat-disabled message
+      if (data.type === 'chat-disabled') {
+        appendMessage('Chat is currently disabled. Please try again later.', 'system');
       }
     };
 
@@ -78,7 +131,7 @@
     function appendMessage(text, className = '') {
       const div = document.createElement('div');
       div.className = `msg ${className}`;
-      div.textContent = text;
+      div.innerHTML = text;
       chatBox.appendChild(div);
       chatBox.scrollTop = chatBox.scrollHeight;
     }
@@ -101,6 +154,9 @@
         sendMessage();
       }
     });
+
+    // Start by prompting for username
+    promptForName();
   </script>
 </body>
 </html>
