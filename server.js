@@ -10,10 +10,12 @@ const usernames = [
 ];
 
 const avatars = [
-  'https://example.com/avatar1.png',
-  'https://example.com/avatar2.png',
-  'https://example.com/avatar3.png',
-  'https://example.com/avatar4.png'
+  'https://github.com/pranavkhaspa/LiveChat/blob/main/1.jpg?raw=true',
+  'https://github.com/pranavkhaspa/LiveChat/blob/main/2.jpg?raw=true',
+  'https://github.com/pranavkhaspa/LiveChat/blob/main/3.jpg?raw=true',
+  'https://github.com/pranavkhaspa/LiveChat/blob/main/4.jpg?raw=true',
+  'https://github.com/pranavkhaspa/LiveChat/blob/main/5.jpg?raw=true',
+  'https://github.com/pranavkhaspa/LiveChat/blob/main/6.jpg?raw=true'
 ];
 
 let chatEnabled = true;
