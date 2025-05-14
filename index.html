@@ -45,7 +45,7 @@
 
   <!-- Script -->
   <script>
-    const socket = new WebSocket('wss://livechat-spin.onrender.com');  // Replace with your WebSocket server URL
+    const socket = new WebSocket('wss://livechat-spin.onrender.com'); // Replace with your WebSocket server URL
 
     const chatBox = document.getElementById('chatBox');
     const msgInput = document.getElementById('msgInput');
@@ -137,7 +137,7 @@
         };
         socket.send(JSON.stringify(msg));
         msgInput.value = '';
-        appendChatMessage(msg, true); // Show immediately
+        appendChatMessage(msg, true); // Show message immediately
       }
     }
 
